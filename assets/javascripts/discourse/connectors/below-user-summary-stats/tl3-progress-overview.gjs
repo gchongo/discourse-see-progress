@@ -9,7 +9,7 @@ import { and, eq, gte, or } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import DConditionalLoadingSpinner from "discourse/ui-kit/d-conditional-loading-spinner";
 import DModal from "discourse/ui-kit/d-modal";
-import icon from "discourse/ui-kit/helpers/d-icon";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import Tl3ProgressModal from "../../components/tl3-progress-modal";
 import {
@@ -109,11 +109,7 @@ export default class Tl3ProgressButton extends Component {
   get closestStatText() {
     const closestStatObj = diffLess(this.stats);
     return i18n("see_tl3_progress.closest_stat", {
-      stat_name: i18n(
-        closestStatObj.key === "days_visited" // days_visited uses its own plugin-defined locale
-          ? "see_tl3_progress.days_visited"
-          : `admin.user.tl3_requirements.${closestStatObj.key}`
-      ),
+      stat_name: i18n(`see_tl3_progress.${closestStatObj.key}`),
       stat_left_to_next: closestStatObj.left,
     });
   }
@@ -174,7 +170,7 @@ export default class Tl3ProgressButton extends Component {
     );
 
     const posts_text = i18n(
-      `see_tl3_progress.muted_topics_count.${num_posts === 1 ? "one" : "other"}`,
+      `see_tl3_progress.muted_posts_count.${num_posts === 1 ? "one" : "other"}`,
       {
         num_topics: this.stats.num_posts_in_muted_categories,
       }
@@ -219,7 +215,7 @@ export default class Tl3ProgressButton extends Component {
       {{/if}}
 
       {{#if this.showClosestStat}}
-        <div id="closest-stat-text" class="inline-wrapper">{{icon "forward"}}
+        <div id="closest-stat-text" class="inline-wrapper">{{dIcon "forward"}}
           {{this.closestStatText}}
         </div>
       {{/if}}
@@ -227,15 +223,21 @@ export default class Tl3ProgressButton extends Component {
         (and
           this.siteSettings.show_warning_when_user_has_muted_topics_and_posts
           (or
-            (gte @stats.num_topics_in_muted_categories 1)
-            (gte @stats.num_posts_in_muted_categories 1)
+            (gte this.stats.num_topics_in_muted_categories 1)
+            (gte this.stats.num_posts_in_muted_categories 1)
           )
         )
       }}
-        <p>{{this.mutedTopicsAndPostsText}}</p>
+        <div>
+          {{dIcon "triangle-exclamation"}}
+          {{this.mutedTopicsAndPostsText}}
+          <a href="/?state=muted">
+            {{i18n "see_tl3_progress.muted_categories_link_text"}}
+          </a>
+        </div>
       {{/if}}
       {{#if this.showAboutToLoseTl3}}
-        <div id="closest-stat-to-lose-text" class="inline-wrapper">{{icon
+        <div id="closest-stat-to-lose-text" class="inline-wrapper">{{dIcon
             "triangle-exclamation"
           }}
           {{this.closestStatToLoseText}}
@@ -245,7 +247,7 @@ export default class Tl3ProgressButton extends Component {
       {{#if this.siteSettings.show_verbose_tl3_progress}}
         <DButton
           class="btn-primary"
-          style="margin-bottom: 2em;"
+          style="margin: 2em 0;"
           @label="see_tl3_progress.modal_button_text"
           @action={{this.toggleModalState}}
           @icon={{this.siteSettings.modal_button_icon}}

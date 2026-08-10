@@ -10,7 +10,7 @@ module DiscourseSeeTl3Progress
     def stats
       # TODO: Set user_id to @user.id
       # notification_level = 0 : muted
-      num_posts_in_muted_categories = (DB.query(<<~SQL)).count()
+      num_posts_in_muted_categories = (DB.query(<<~SQL, @user.id)).count()
           SELECT id
           FROM posts
           WHERE topic_id IN (
@@ -20,19 +20,19 @@ module DiscourseSeeTl3Progress
               SELECT category_id
               FROM category_users
               WHERE notification_level = 0
-                AND user_id = 1
+                AND user_id = ?
             )
           );
         SQL
 
-      num_topics_in_muted_categories = (DB.query(<<~SQL)).count()
+      num_topics_in_muted_categories = (DB.query(<<~SQL, @user.id)).count()
           SELECT id
             FROM topics
             WHERE category_id IN (
               SELECT category_id
               FROM category_users
               WHERE notification_level = 0
-                AND user_id = 1
+                AND user_id = ?
             );
         SQL
 
