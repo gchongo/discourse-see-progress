@@ -5,7 +5,7 @@ import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import { eq } from "discourse/truth-helpers";
+import { eq, or } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import DConditionalLoadingSpinner from "discourse/ui-kit/d-conditional-loading-spinner";
 import DModal from "discourse/ui-kit/d-modal";
@@ -41,7 +41,8 @@ export default class Tl3ProgressButton extends Component {
   @tracked modalShowing = false;
   @tracked stats;
   @tracked lockedStatus;
-  @tracked loading = true;
+  @tracked stats_loading = true;
+  @tracked is_locked_loading = true;
 
   constructor() {
     super(...arguments);
@@ -55,20 +56,21 @@ export default class Tl3ProgressButton extends Component {
         `/u/${this.args.user.username}/tl3-progress.json`
       );
       this.stats = data.stats_progress;
+      this.stats_loading = false;
     } catch (e) {
       popupAjaxError(e);
     }
   }
 
   async getIsLocked() {
-    if (this.siteSettings.show_locked_at_trust_level) {
-      this.loading = false;
+    if (!this.siteSettings.show_locked_at_trust_level) {
+      this.is_locked_loading = false;
       return;
     }
     try {
       const data = await ajax(`/u/${this.args.user.username}/is-locked.json`);
       this.lockedStatus = data;
-      this.loading = false;
+      this.is_locked_loading = false;
     } catch (e) {
       popupAjaxError(e);
     }
@@ -157,8 +159,10 @@ export default class Tl3ProgressButton extends Component {
   }
 
   <template>
-    {{#if this.loading}}
-      <DConditionalLoadingSpinner @condition={{this.loading}} />
+    {{#if (or this.stats_loading this.is_locked_loading)}}
+      <DConditionalLoadingSpinner
+        @condition={{or this.stats_loading this.is_locked_loading}}
+      />
     {{else}}
       <h3>{{i18n "see_tl3_progress.section_title"}}</h3>
       {{#if (eq @user.trust_level 2)}}
@@ -219,7 +223,12 @@ export default class Tl3ProgressButton extends Component {
             }}
             @closeModal={{this.toggleModalState}}
           >
-            <Tl3ProgressModal @user={{@user}} @stats={{this.stats}} />
+            <Tl3ProgressModal
+              @user={{@user}}
+              @stats={{this.stats}}
+              @is_locked={{this.lockedStatus.is_locked}}
+              @locked_at_trust_level={{this.lockedStatus.locked_at_trust_level}}
+            />
           </DModal>
         {{/if}}
       {{/if}}

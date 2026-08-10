@@ -38,3 +38,6 @@ en:
       does_not_qualify: "Doesn't qualify for trust level 3."
       will_be_promoted: "Will be promoted soon."
       will_be_demoted: "Will be demoted soon."
+      locked_will_not_be_promoted: "Trust level locked. Will never be promoted."
+      locked_will_not_be_demoted: "Trust level locked. Will never be demoted."
+      on_grace_period: "Currently in promotion grace period, will not be demoted."

@@ -1,8 +1,8 @@
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
-import { eq } from "discourse/truth-helpers";
-import icon from "discourse/ui-kit/helpers/d-icon";
+import { and, eq } from "discourse/truth-helpers";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { doesQualify } from "../lib/calculate-stats";
 import ProgressBar from "./progress-bar";
@@ -33,7 +33,7 @@ export default class Tl3ProgressModal extends Component {
   }
 
   get doesQualify() {
-    return doesQualify(this.stats) && this.args.user.trust_level === 2;
+    return doesQualify(this.stats);
   }
 
   get doesQualifyStyle() {
@@ -50,7 +50,7 @@ export default class Tl3ProgressModal extends Component {
     {{#if @stats}}
       <p class="inline-wrapper">
         <div style={{trustHTML this.suspended_before.style}}>
-          {{icon (if this.suspended_before.data "xmark" "check")}}
+          {{dIcon (if this.suspended_before.data "xmark" "check")}}
         </div>
 
         {{i18n
@@ -63,7 +63,7 @@ export default class Tl3ProgressModal extends Component {
 
       <p class="inline-wrapper">
         <div style={{trustHTML this.silenced_before.style}}>
-          {{icon (if this.silenced_before.data "xmark" "check")}}
+          {{dIcon (if this.silenced_before.data "xmark" "check")}}
         </div>
 
         {{i18n
@@ -174,19 +174,40 @@ export default class Tl3ProgressModal extends Component {
 
       <hr />
 
-      <p class="inline-wrapper">
-        <div style={{trustHTML this.doesQualifyStyle}}>
-          {{icon (if this.doesQualify "check" "xmark")}}
-        </div>
+      <p class="inline-wrapper tl3-promotion-decision">
+        {{!-- <div style={{trustHTML this.doesQualifyStyle}}>
+          {{icon (if this.doesQualify "check" (if @is_locked "lock" "xmark"))}}
+        </div> --}}
         {{#if this.doesQualify}}
-          {{i18n "see_tl3_progress.qualifies"}}
-          {{#if (eq @user.trust_level 2)}}
-            {{i18n "see_tl3_progress.will_be_promoted"}}
+          {{#if (and @is_locked (eq @locked_at_trust_level 2))}}
+            {{dIcon "lock"}}
+            {{i18n "see_tl3_progress.locked_will_not_be_promoted"}}
+          {{else}}
+            {{i18n "see_tl3_progress.qualifies"}}
+            {{#if (eq @user.trust_level 2)}}
+              {{dIcon "check"}}
+              {{i18n "see_tl3_progress.will_be_promoted"}}
+            {{/if}}
           {{/if}}
         {{else}}
-          {{i18n "see_tl3_progress.does_not_qualify"}}
           {{#if (eq @user.trust_level 3)}}
-            {{i18n "see_tl3_progress.will_be_demoted"}}
+            {{#if (and @is_locked (eq @locked_at_trust_level 3))}}
+              {{! User is TL3, and is locked at TL3 }}
+              {{dIcon "lock"}}
+              {{i18n "see_tl3_progress.locked_will_not_be_demoted"}}
+            {{else}}
+              {{#if @stats.on_grace_period}}
+                {{dIcon "check"}}
+                {{i18n "see_tl3_progress.on_grace_period"}}
+              {{else}}
+                {{dIcon "xmark"}}
+                {{i18n "see_tl3_progress.will_be_demoted"}}
+              {{/if}}
+            {{/if}}
+          {{else}}
+            {{! User is TL2 }}
+            {{dIcon "xmark"}}
+            {{i18n "see_tl3_progress.does_not_qualify"}}
           {{/if}}
         {{/if}}
       </p>
