@@ -5,7 +5,7 @@ import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import { eq, or } from "discourse/truth-helpers";
+import { and, eq, gte, or } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import DConditionalLoadingSpinner from "discourse/ui-kit/d-conditional-loading-spinner";
 import DModal from "discourse/ui-kit/d-modal";
@@ -64,6 +64,10 @@ export default class Tl3ProgressButton extends Component {
 
   async getIsLocked() {
     if (!this.siteSettings.show_locked_at_trust_level) {
+      this.lockedStatus = {
+        is_locked: false,
+        locked_at_trust_level: null,
+      };
       this.is_locked_loading = false;
       return;
     }
@@ -158,6 +162,30 @@ export default class Tl3ProgressButton extends Component {
     });
   }
 
+  get mutedTopicsAndPostsText() {
+    const num_topics = this.stats.num_topics_in_muted_categories;
+    const num_posts = this.stats.num_posts_in_muted_categories;
+
+    const topics_text = i18n(
+      `see_tl3_progress.muted_topics_count.${num_topics === 1 ? "one" : "other"}`,
+      {
+        num_topics: this.stats.num_topics_in_muted_categories,
+      }
+    );
+
+    const posts_text = i18n(
+      `see_tl3_progress.muted_topics_count.${num_posts === 1 ? "one" : "other"}`,
+      {
+        num_topics: this.stats.num_posts_in_muted_categories,
+      }
+    );
+
+    return i18n("see_tl3_progress.has_muted_topics_posts_warning", {
+      muted_topics_count: topics_text,
+      muted_posts_count: posts_text,
+    });
+  }
+
   <template>
     {{#if (or this.stats_loading this.is_locked_loading)}}
       <DConditionalLoadingSpinner
@@ -194,6 +222,17 @@ export default class Tl3ProgressButton extends Component {
         <div id="closest-stat-text" class="inline-wrapper">{{icon "forward"}}
           {{this.closestStatText}}
         </div>
+      {{/if}}
+      {{#if
+        (and
+          this.siteSettings.show_warning_when_user_has_muted_topics_and_posts
+          (or
+            (gte @stats.num_topics_in_muted_categories 1)
+            (gte @stats.num_posts_in_muted_categories 1)
+          )
+        )
+      }}
+        <p>{{this.mutedTopicsAndPostsText}}</p>
       {{/if}}
       {{#if this.showAboutToLoseTl3}}
         <div id="closest-stat-to-lose-text" class="inline-wrapper">{{icon

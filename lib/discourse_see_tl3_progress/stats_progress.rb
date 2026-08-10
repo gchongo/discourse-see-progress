@@ -8,6 +8,7 @@ module DiscourseSeeTl3Progress
     end
 
     def stats
+      # TODO: Set user_id to @user.id
       # notification_level = 0 : muted
       num_posts_in_muted_categories = (DB.query(<<~SQL)).count()
           SELECT id

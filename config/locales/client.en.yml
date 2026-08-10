@@ -41,3 +41,10 @@ en:
       locked_will_not_be_promoted: "Trust level locked. Will never be promoted."
       locked_will_not_be_demoted: "Trust level locked. Will never be demoted."
       on_grace_period: "Currently in promotion grace period, will not be demoted."
+      muted_topics_count:
+        one: "%{num_topics} topic"
+        other: "%{num_topics} topics"
+      muted_posts_count:
+        one: "%{num_topics} post"
+        other: "%{num_topics} posts"
+      has_muted_topics_posts_warning: "WARNING: You have %{muted_topics_count} %{muted_posts_count} muted that you can view"

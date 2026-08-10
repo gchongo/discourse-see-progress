@@ -49,6 +49,10 @@ see_tl3_progress:
     default: false
     type: bool
     client: true
+  show_warning_when_user_has_muted_topics_and_posts:
+    default: false
+    type: bool
+    client: true
   low_tl3_stats_minimum:
     default: 5
     type: integer
