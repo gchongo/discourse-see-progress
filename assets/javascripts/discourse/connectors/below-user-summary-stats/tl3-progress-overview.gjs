@@ -1,5 +1,6 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { concat } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
@@ -23,8 +24,13 @@ import {
 export default class Tl3ProgressButton extends Component {
   static shouldRender(args, helper) {
     const user = args.user;
-    // eslint-disable-next-line curly
-    if (!helper.currentUser) return false;
+
+    if (!helper.currentUser) {
+      return false;
+    }
+    if (user.trust_level !== 2 && user.trust_level !== 3) {
+      return false;
+    }
     return (
       helper.currentUser.staff ||
       user.isCurrent ||
@@ -226,12 +232,13 @@ export default class Tl3ProgressButton extends Component {
             (gte this.stats.num_topics_in_muted_categories 1)
             (gte this.stats.num_posts_in_muted_categories 1)
           )
+          (eq @user.trust_level 2)
         )
       }}
         <div>
           {{dIcon "triangle-exclamation"}}
           {{this.mutedTopicsAndPostsText}}
-          <a href="/?state=muted">
+          <a href={{concat "/u/" @user.username "/preferences/tracking"}}>
             {{i18n "see_tl3_progress.muted_categories_link_text"}}
           </a>
         </div>
@@ -244,10 +251,15 @@ export default class Tl3ProgressButton extends Component {
         </div>
       {{/if}}
 
-      {{#if this.siteSettings.show_verbose_tl3_progress}}
+      {{#if
+        (and
+          this.siteSettings.show_verbose_tl3_progress
+          (or (eq @user.trust_level 2) (eq @user.trust_level 3))
+        )
+      }}
         <DButton
           class="btn-primary"
-          style="margin: 2em 0;"
+          style="margin: 1em 0;"
           @label="see_tl3_progress.modal_button_text"
           @action={{this.toggleModalState}}
           @icon={{this.siteSettings.modal_button_icon}}
