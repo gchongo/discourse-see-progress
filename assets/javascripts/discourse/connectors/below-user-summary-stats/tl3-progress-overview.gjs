@@ -110,7 +110,8 @@ export default class Tl3ProgressButton extends Component {
       this.siteSettings.show_verbose_tl3_progress &&
       this.siteSettings.show_next_closest_stat &&
       this.args.user.trust_level === 2 &&
-      this.stepsDone < 14
+      this.stepsDone < 14 &&
+      Boolean(diffLess(this.stats))
     );
   }
 
@@ -184,7 +185,7 @@ export default class Tl3ProgressButton extends Component {
     const posts_text = i18n(
       `see_tl3_progress.muted_posts_count.${num_posts === 1 ? "one" : "other"}`,
       {
-        num_topics: this.stats.num_posts_in_muted_categories,
+        num_posts: this.stats.num_posts_in_muted_categories,
       }
     );
 

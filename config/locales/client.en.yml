@@ -45,7 +45,7 @@ en:
         one: "%{num_topics} topic"
         other: "%{num_topics} topics"
       muted_posts_count:
-        one: "%{num_topics} post"
-        other: "%{num_topics} posts"
+        one: "%{num_posts} post"
+        other: "%{num_posts} posts"
       has_muted_topics_posts_warning: "WARNING: You have %{muted_topics_count} and %{muted_posts_count} in muted categories that you can view."
       muted_categories_link_text: "View muted categories."

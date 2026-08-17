@@ -125,8 +125,12 @@ export function diffLess(stats) {
     }
   }
 
+  const all_keys = Object.keys(diffs);
+  if (all_keys.length === 0) {
+    return null;
+  }
   const min_val = Math.min(...Object.values(diffs));
-  const stat_name = Object.keys(diffs).find((key) => diffs[key] === min_val);
+  const stat_name = all_keys.find((key) => diffs[key] === min_val);
 
   return {
     key: stat_name,
