@@ -6,7 +6,7 @@ import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
-import { and, eq, gte, or } from "discourse/truth-helpers";
+import { and, eq, gte, lt, or } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import DConditionalLoadingSpinner from "discourse/ui-kit/d-conditional-loading-spinner";
 import DModal from "discourse/ui-kit/d-modal";
@@ -108,7 +108,8 @@ export default class Tl3ProgressButton extends Component {
   get showClosestStat() {
     return (
       this.siteSettings.show_verbose_tl3_progress &&
-      this.args.user.trust_level === 2
+      this.args.user.trust_level === 2 &&
+      this.stepsDone < 14
     );
   }
 
@@ -194,7 +195,14 @@ export default class Tl3ProgressButton extends Component {
         @condition={{or this.stats_loading this.is_locked_loading}}
       />
     {{else}}
-      <h3>{{i18n "see_tl3_progress.section_title"}}</h3>
+      <h3>{{i18n
+          (if
+            (eq this.stats.time_period 1)
+            "see_tl3_progress.modal_title.one"
+            "see_tl3_progress.modal_title.other"
+          )
+          num_days=this.stats.time_period
+        }}</h3>
       {{#if (eq @user.trust_level 2)}}
         <div class="segmented-bars">
           {{#each this.barsFilledOrEmpty as |state|}}
@@ -209,14 +217,6 @@ export default class Tl3ProgressButton extends Component {
         </div>
         <p>
           {{this.progressDoneText}}
-          {{i18n
-            (if
-              (eq this.stats.time_period 1)
-              "see_tl3_progress.modal_title.one"
-              "see_tl3_progress.modal_title.other"
-            )
-            num_days=this.stats.time_period
-          }}
         </p>
       {{/if}}
 
@@ -233,6 +233,7 @@ export default class Tl3ProgressButton extends Component {
             (gte this.stats.num_posts_in_muted_categories 1)
           )
           (eq @user.trust_level 2)
+          (lt this.stepsDone 14)
         )
       }}
         <div>
@@ -259,7 +260,7 @@ export default class Tl3ProgressButton extends Component {
       }}
         <DButton
           class="btn-primary"
-          style="margin: 1em 0;"
+          style="margin-bottom: 1em;"
           @label="see_tl3_progress.modal_button_text"
           @action={{this.toggleModalState}}
           @icon={{this.siteSettings.modal_button_icon}}

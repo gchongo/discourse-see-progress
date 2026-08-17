@@ -183,10 +183,13 @@ export default class Tl3ProgressModal extends Component {
             {{dIcon "lock"}}
             {{i18n "see_tl3_progress.locked_will_not_be_promoted"}}
           {{else}}
-            {{i18n "see_tl3_progress.qualifies"}}
             {{#if (eq @user.trust_level 2)}}
               {{dIcon "check"}}
+              {{i18n "see_tl3_progress.qualifies"}}
               {{i18n "see_tl3_progress.will_be_promoted"}}
+            {{else}}
+              {{dIcon "check"}}
+              {{i18n "see_tl3_progress.qualifies"}}
             {{/if}}
           {{/if}}
         {{else}}
