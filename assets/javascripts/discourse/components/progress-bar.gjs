@@ -38,10 +38,33 @@ export default class ProgressBar extends Component {
   }
 
   get meterStyle() {
-    let percent = (this.args.value / this.args.total) * 100;
-    percent = percent > 100 ? 100 : percent;
-    // We set it to 5% for aesthetics, if not it becomes too squashed
-    return `width: ${percent <= 5 && percent > 0 ? 5 : percent}%; background-color: ${this.session.defaultColorSchemeIsDark || this.session.darkModeAvailable ? this.siteSettings.progress_bar_color_dark : this.siteSettings.progress_bar_color_light};`;
+    const value = this.args.value || 0;
+    const total = this.args.total || 0;
+    // eslint-disable-next-line no-useless-assignment
+    let percent = 0;
+
+    if (this.args.type === "max") {
+      if (total === 0) {
+        percent = value === 0 ? 100 : 0;
+      } else {
+        percent = Math.max(0, ((total - value) / total) * 100);
+      }
+    } else {
+      if (total === 0) {
+        percent = 100;
+      } else {
+        percent = Math.min(100, (value / total) * 100);
+      }
+    }
+
+    const width = percent <= 5 && percent > 0 ? 5 : percent;
+    const isDark =
+      this.session.defaultColorSchemeIsDark || this.session.darkModeAvailable;
+    const color = isDark
+      ? this.siteSettings.progress_bar_color_dark
+      : this.siteSettings.progress_bar_color_light;
+
+    return `width: ${width}%; background-color: ${color};`;
   }
 
   get meterBgStyle() {

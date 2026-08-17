@@ -108,6 +108,7 @@ export default class Tl3ProgressButton extends Component {
   get showClosestStat() {
     return (
       this.siteSettings.show_verbose_tl3_progress &&
+      this.siteSettings.show_next_closest_stat &&
       this.args.user.trust_level === 2 &&
       this.stepsDone < 14
     );
@@ -149,12 +150,16 @@ export default class Tl3ProgressButton extends Component {
     return (
       !this.stats.on_grace_period &&
       this.siteSettings.show_warning_when_tl3_requirements_low &&
-      this.args.user.trust_level === 3
+      this.args.user.trust_level === 3 &&
+      Boolean(diffMore(this.stats, this.siteSettings))
     );
   }
 
   get closestStatToLoseText() {
     const closestStatObj = diffMore(this.stats, this.siteSettings);
+    if (!closestStatObj) {
+      return "";
+    }
     return i18n("see_tl3_progress.closest_stat_to_lose", {
       stat_name: i18n(
         closestStatObj.key === "days_visited" // days_visited uses its own plugin-defined locale

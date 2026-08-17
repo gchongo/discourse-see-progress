@@ -107,8 +107,6 @@ export function diffLess(stats) {
       stats.min_topics_replied_to - stats.num_topics_replied_to,
     topics_viewed: stats.min_topics_viewed - stats.topics_viewed,
     posts_read: stats.min_posts_read - stats.posts_read,
-    flagged_posts: stats.num_flagged_posts,
-    flagged_by_users: stats.num_flagged_by_users,
     topics_viewed_all_time:
       stats.min_topics_viewed_all_time - stats.topics_viewed_all_time,
     posts_read_all_time:
@@ -122,8 +120,7 @@ export function diffLess(stats) {
   };
 
   for (const [key, value] of Object.entries(diffs)) {
-    diffs[key] = value < 0 ? 0 : value;
-    if (diffs[key] === 0) {
+    if (value <= 0) {
       delete diffs[key];
     }
   }
@@ -139,34 +136,36 @@ export function diffLess(stats) {
 
 export function diffMore(stats, site_settings) {
   const diffs = {
-    days_visited: stats.min_days_visited - stats.days_visited,
+    days_visited: stats.days_visited - stats.min_days_visited,
     topics_replied_to:
-      stats.min_topics_replied_to - stats.num_topics_replied_to,
-    topics_viewed: stats.min_topics_viewed - stats.topics_viewed,
-    posts_read: stats.min_posts_read - stats.posts_read,
-    flagged_posts: stats.num_flagged_posts,
-    flagged_by_users: stats.num_flagged_by_users,
+      stats.num_topics_replied_to - stats.min_topics_replied_to,
+    topics_viewed: stats.topics_viewed - stats.min_topics_viewed,
+    posts_read: stats.posts_read - stats.min_posts_read,
     topics_viewed_all_time:
-      stats.min_topics_viewed_all_time - stats.topics_viewed_all_time,
+      stats.topics_viewed_all_time - stats.min_topics_viewed_all_time,
     posts_read_all_time:
-      stats.min_posts_read_all_time - stats.posts_read_all_time,
-    likes_given: stats.min_likes_given - stats.num_likes_given,
-    likes_received: stats.min_likes_received - stats.num_likes_received,
+      stats.posts_read_all_time - stats.min_posts_read_all_time,
+    likes_given: stats.num_likes_given - stats.min_likes_given,
+    likes_received: stats.num_likes_received - stats.min_likes_received,
     likes_received_days:
-      stats.min_likes_received_days - stats.num_likes_received_days,
+      stats.num_likes_received_days - stats.min_likes_received_days,
     likes_received_users:
-      stats.min_likes_received_users - stats.num_likes_received_users,
+      stats.num_likes_received_users - stats.min_likes_received_users,
+    flagged_posts: stats.max_flagged_posts - stats.num_flagged_posts,
+    flagged_by_users: stats.max_flagged_by_users - stats.num_flagged_by_users,
   };
 
   for (const [key, value] of Object.entries(diffs)) {
-    diffs[key] = value < 0 ? 0 : value;
-    if (diffs[key] >= site_settings.low_tl3_stats_minimum) {
+    if (value >= site_settings.low_tl3_stats_minimum || value < 0) {
       delete diffs[key];
     }
   }
-
+  const all_keys = Object.keys(diffs);
+  if (all_keys.length === 0) {
+    return null;
+  }
   const min_val = Math.min(...Object.values(diffs));
-  const stat_name = Object.keys(diffs).find((key) => diffs[key] === min_val);
+  const stat_name = all_keys.find((key) => diffs[key] === min_val);
 
   return {
     key: stat_name,
