@@ -17,7 +17,7 @@ module DiscourseSeeTl3Progress
           JOIN category_users cu ON cu.category_id = t.category_id
           WHERE cu.notification_level = 0
             AND cu.user_id = ?
-            AND p.deleted_at IS NULL
+            AND p.deleted_at IS NULLgit 
         SQL
 
       num_topics_in_muted_categories = DB.query_single(<<~SQL, @user.id).first || 0
