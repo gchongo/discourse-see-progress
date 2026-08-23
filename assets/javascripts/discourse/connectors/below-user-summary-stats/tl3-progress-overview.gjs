@@ -31,14 +31,18 @@ export default class Tl3ProgressButton extends Component {
     if (user.trust_level !== 2 && user.trust_level !== 3) {
       return false;
     }
-    return (
-      helper.currentUser.staff ||
-      user.isCurrent ||
-      ((helper.siteSettings.show_warning_when_tl3_requirements_low
-        ? user.trust_level === 3
-        : user.trust_level === 2) &&
-        !user.staff)
-    );
+
+    // Staff can always see it
+    if (helper.currentUser.staff) {
+      return true;
+    }
+
+    // Non-staff can only see it on their own profile, IF they meet the trust level logic
+    const meetsTrustSetting = helper.siteSettings.show_warning_when_tl3_requirements_low
+      ? user.trust_level === 3
+      : user.trust_level === 2;
+
+    return user.isCurrent && meetsTrustSetting && !user.staff;
   }
 
   @service siteSettings;
