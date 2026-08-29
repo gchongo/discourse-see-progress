@@ -2,7 +2,6 @@ import Component from "@glimmer/component";
 import { concat } from "@ember/helper";
 import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
-import { and, eq } from "discourse/truth-helpers";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { requirementsQualify } from "../lib/calculate-stats";
@@ -32,7 +31,8 @@ export default class RequirementsProgressModal extends Component {
 
     <p class="inline-wrapper tl3-promotion-decision">
       {{#if this.doesQualify}}
-        {{#if (and @is_locked (eq @locked_at_trust_level @user.trust_level))}}
+        {{! Core blocks promotion whenever a trust level is manually locked }}
+        {{#if @is_locked}}
           {{dIcon "lock"}}
           {{i18n "see_tl3_progress.locked_will_not_be_promoted"}}
         {{else}}

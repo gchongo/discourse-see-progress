@@ -342,11 +342,9 @@ export default class Tl3ProgressButton extends Component {
               @closeModal={{this.toggleModalState}}
             >
               <RequirementsProgressModal
-                @user={{@user}}
                 @requirements={{this.requirements}}
                 @targetTrustLevel={{this.stats.target_trust_level}}
                 @is_locked={{this.lockedStatus.is_locked}}
-                @locked_at_trust_level={{this.lockedStatus.locked_at_trust_level}}
               />
             </DModal>
           {{else}}

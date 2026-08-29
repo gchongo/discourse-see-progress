@@ -22,37 +22,37 @@ module DiscourseSeeTl3Progress
 
     def tl1_requirements
       [
-        requirement("topics_entered", @stat.topics_entered, SiteSetting.tl1_requires_topics_entered),
-        requirement("posts_read", @stat.posts_read_count, SiteSetting.tl1_requires_read_posts),
-        requirement("time_read", minutes_read, SiteSetting.tl1_requires_time_spent_mins),
-        requirement("account_age", account_age_minutes, SiteSetting.tl1_requires_time_spent_mins),
+        requirement("topics_entered", @stat.topics_entered, :tl1_requires_topics_entered),
+        requirement("posts_read", @stat.posts_read_count, :tl1_requires_read_posts),
+        requirement("time_read", minutes_read, :tl1_requires_time_spent_mins),
+        requirement("account_age", account_age_minutes, :tl1_requires_time_spent_mins),
       ]
     end
 
     def tl2_requirements
       [
-        requirement("topics_entered", @stat.topics_entered, SiteSetting.tl2_requires_topics_entered),
-        requirement("posts_read", @stat.posts_read_count, SiteSetting.tl2_requires_read_posts),
-        requirement("time_read", minutes_read, SiteSetting.tl2_requires_time_spent_mins),
-        requirement("account_age", account_age_minutes, SiteSetting.tl2_requires_time_spent_mins),
-        requirement("days_visited", @stat.days_visited, SiteSetting.tl2_requires_days_visited),
-        requirement("likes_received", @stat.likes_received, SiteSetting.tl2_requires_likes_received),
-        requirement("likes_given", @stat.likes_given, SiteSetting.tl2_requires_likes_given),
+        requirement("topics_entered", @stat.topics_entered, :tl2_requires_topics_entered),
+        requirement("posts_read", @stat.posts_read_count, :tl2_requires_read_posts),
+        requirement("time_read", minutes_read, :tl2_requires_time_spent_mins),
+        requirement("account_age", account_age_minutes, :tl2_requires_time_spent_mins),
+        requirement("days_visited", @stat.days_visited, :tl2_requires_days_visited),
+        requirement("likes_received", @stat.likes_received, :tl2_requires_likes_received),
+        requirement("likes_given", @stat.likes_given, :tl2_requires_likes_given),
+        # Despite the bang, this method only runs a SELECT and does not write.
         requirement(
           "topics_replied_to",
-          # Despite the bang, this method only runs a SELECT and does not write.
           @stat.calc_topic_reply_count!,
-          SiteSetting.tl2_requires_topic_reply_count,
+          :tl2_requires_topic_reply_count,
         ),
       ]
     end
 
-    def requirement(key, value, total)
-      { key: key, type: "min", value: value.to_i, total: total.to_i }
+    def requirement(key, value, setting)
+      { key: key, type: "min", value: value.to_i, total: SiteSetting.get(setting).to_i }
     end
 
     def minutes_read
-      @stat.time_read / 60
+      @stat.time_read.to_i / 60
     end
 
     def account_age_minutes

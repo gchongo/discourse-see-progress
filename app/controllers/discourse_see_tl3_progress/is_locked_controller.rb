@@ -12,7 +12,8 @@ module DiscourseSeeTl3Progress
       raise Discourse::InvalidAccess unless current_user == user || current_user.staff?
 
       render json: {
-               is_locked: user.manual_locked_trust_level?,
+               # Not `manual_locked_trust_level?`: that returns false when locked at TL0.
+               is_locked: user.manual_locked_trust_level.present?,
                locked_at_trust_level: user.manual_locked_trust_level.to_i,
              }
     end
