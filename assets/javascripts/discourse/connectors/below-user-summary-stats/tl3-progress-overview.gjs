@@ -12,13 +12,19 @@ import DConditionalLoadingSpinner from "discourse/ui-kit/d-conditional-loading-s
 import DModal from "discourse/ui-kit/d-modal";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
+import RequirementsProgressModal from "../../components/requirements-progress-modal";
 import Tl3ProgressModal from "../../components/tl3-progress-modal";
 import {
   diffLess,
   diffMore,
   doesQualify,
   percentageDone,
+  requirementsDiffLess,
+  requirementsPercentageDone,
+  requirementsQualify,
+  requirementsStepsDone,
   stepsDone,
+  TL3_STEP_COUNT,
 } from "../../lib/calculate-stats";
 
 export default class Tl3ProgressButton extends Component {
@@ -28,7 +34,7 @@ export default class Tl3ProgressButton extends Component {
     if (!helper.currentUser) {
       return false;
     }
-    if (user.trust_level !== 2 && user.trust_level !== 3) {
+    if (user.trust_level > 3) {
       return false;
     }
 
@@ -37,11 +43,11 @@ export default class Tl3ProgressButton extends Component {
       return true;
     }
 
-    // Non-staff can only see it on their own profile, IF they meet the trust level logic
-    const meetsTrustSetting = helper.siteSettings
-      .show_warning_when_tl3_requirements_low
-      ? user.trust_level === 3
-      : user.trust_level === 2;
+    // TL3 has nothing left to progress towards, so it is only shown when the
+    // site wants users warned about slipping below the requirements.
+    const meetsTrustSetting =
+      user.trust_level !== 3 ||
+      helper.siteSettings.show_warning_when_tl3_requirements_low;
 
     return user.isCurrent && meetsTrustSetting && !user.staff;
   }
@@ -91,37 +97,87 @@ export default class Tl3ProgressButton extends Component {
     }
   }
 
+  // TL0 and TL1 users progress towards TL1/TL2, which core evaluates with a
+  // much smaller set of requirements than TL3.
+  get isBasic() {
+    return this.args.user.trust_level < 2;
+  }
+
+  get requirements() {
+    return this.stats?.requirements ?? [];
+  }
+
+  get totalSteps() {
+    return this.isBasic ? this.requirements.length : TL3_STEP_COUNT;
+  }
+
   get percentageDone() {
-    return percentageDone(this.stats);
+    return this.isBasic
+      ? requirementsPercentageDone(this.requirements)
+      : percentageDone(this.stats);
   }
 
   get doesQualify() {
-    return doesQualify(this.stats);
+    return this.isBasic
+      ? requirementsQualify(this.requirements)
+      : doesQualify(this.stats);
   }
 
   get stepsDone() {
-    return stepsDone(this.stats);
+    return this.isBasic
+      ? requirementsStepsDone(this.requirements)
+      : stepsDone(this.stats);
   }
 
   get progressDoneText() {
     return i18n("see_tl3_progress.progress_done", {
       steps_completed: this.stepsDone,
+      total_steps: this.totalSteps,
       percentage_done: this.percentageDone,
     });
   }
 
-  get showClosestStat() {
+  get progressTitle() {
+    return i18n("see_tl3_progress.progress_title", {
+      target_level: this.stats?.target_trust_level,
+    });
+  }
+
+  get showModalButton() {
+    if (this.isBasic) {
+      return true;
+    }
+
     return (
       this.siteSettings.show_verbose_tl3_progress &&
-      this.siteSettings.show_next_closest_stat &&
-      this.args.user.trust_level === 2 &&
-      this.stepsDone < 14 &&
-      Boolean(diffLess(this.stats))
+      (this.args.user.trust_level === 2 || this.args.user.trust_level === 3)
+    );
+  }
+
+  get closestStat() {
+    return this.isBasic
+      ? requirementsDiffLess(this.requirements)
+      : diffLess(this.stats);
+  }
+
+  get showClosestStat() {
+    if (
+      !this.siteSettings.show_next_closest_stat ||
+      this.stepsDone >= this.totalSteps ||
+      !this.closestStat
+    ) {
+      return false;
+    }
+
+    return (
+      this.isBasic ||
+      (this.siteSettings.show_verbose_tl3_progress &&
+        this.args.user.trust_level === 2)
     );
   }
 
   get closestStatText() {
-    const closestStatObj = diffLess(this.stats);
+    const closestStatObj = this.closestStat;
     return i18n("see_tl3_progress.closest_stat", {
       stat_name: i18n(`see_tl3_progress.${closestStatObj.key}`),
       stat_left_to_next: closestStatObj.left,
@@ -135,7 +191,7 @@ export default class Tl3ProgressButton extends Component {
 
   get barsFilledOrEmpty() {
     let state = [];
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < this.totalSteps; i++) {
       if (i < this.stepsDone) {
         state.push(
           `background-color: ${this.session.defaultColorSchemeIsDark || this.session.darkModeAvailable ? this.siteSettings.progress_bar_color_dark : this.siteSettings.progress_bar_color_light}; width: 100%;`
@@ -206,15 +262,19 @@ export default class Tl3ProgressButton extends Component {
         @condition={{or this.stats_loading this.is_locked_loading}}
       />
     {{else}}
-      <h3>{{i18n
-          (if
-            (eq this.stats.time_period 1)
-            "see_tl3_progress.modal_title.one"
-            "see_tl3_progress.modal_title.other"
-          )
-          num_days=this.stats.time_period
-        }}</h3>
-      {{#if (eq @user.trust_level 2)}}
+      {{#if this.isBasic}}
+        <h3>{{this.progressTitle}}</h3>
+      {{else}}
+        <h3>{{i18n
+            (if
+              (eq this.stats.time_period 1)
+              "see_tl3_progress.modal_title.one"
+              "see_tl3_progress.modal_title.other"
+            )
+            num_days=this.stats.time_period
+          }}</h3>
+      {{/if}}
+      {{#if (or this.isBasic (eq @user.trust_level 2))}}
         <div class="segmented-bars">
           {{#each this.barsFilledOrEmpty as |state|}}
             <div class="segmented-bar" style={{trustHTML this.barBg}}>
@@ -244,7 +304,7 @@ export default class Tl3ProgressButton extends Component {
             (gte this.stats.num_posts_in_muted_categories 1)
           )
           (eq @user.trust_level 2)
-          (lt this.stepsDone 14)
+          (lt this.stepsDone this.totalSteps)
         )
       }}
         <div>
@@ -263,38 +323,52 @@ export default class Tl3ProgressButton extends Component {
         </div>
       {{/if}}
 
-      {{#if
-        (and
-          this.siteSettings.show_verbose_tl3_progress
-          (or (eq @user.trust_level 2) (eq @user.trust_level 3))
-        )
-      }}
+      {{#if this.showModalButton}}
         <DButton
           class="btn-primary"
           style="margin-bottom: 1em;"
-          @label="see_tl3_progress.modal_button_text"
+          @label={{if
+            this.isBasic
+            "see_tl3_progress.progress_button_text"
+            "see_tl3_progress.modal_button_text"
+          }}
           @action={{this.toggleModalState}}
           @icon={{this.siteSettings.modal_button_icon}}
         />
         {{#if this.modalShowing}}
-          <DModal
-            @title={{i18n
-              (if
-                (eq this.stats.time_period 1)
-                "see_tl3_progress.modal_title.one"
-                "see_tl3_progress.modal_title.other"
-              )
-              num_days=this.stats.time_period
-            }}
-            @closeModal={{this.toggleModalState}}
-          >
-            <Tl3ProgressModal
-              @user={{@user}}
-              @stats={{this.stats}}
-              @is_locked={{this.lockedStatus.is_locked}}
-              @locked_at_trust_level={{this.lockedStatus.locked_at_trust_level}}
-            />
-          </DModal>
+          {{#if this.isBasic}}
+            <DModal
+              @title={{this.progressTitle}}
+              @closeModal={{this.toggleModalState}}
+            >
+              <RequirementsProgressModal
+                @user={{@user}}
+                @requirements={{this.requirements}}
+                @targetTrustLevel={{this.stats.target_trust_level}}
+                @is_locked={{this.lockedStatus.is_locked}}
+                @locked_at_trust_level={{this.lockedStatus.locked_at_trust_level}}
+              />
+            </DModal>
+          {{else}}
+            <DModal
+              @title={{i18n
+                (if
+                  (eq this.stats.time_period 1)
+                  "see_tl3_progress.modal_title.one"
+                  "see_tl3_progress.modal_title.other"
+                )
+                num_days=this.stats.time_period
+              }}
+              @closeModal={{this.toggleModalState}}
+            >
+              <Tl3ProgressModal
+                @user={{@user}}
+                @stats={{this.stats}}
+                @is_locked={{this.lockedStatus.is_locked}}
+                @locked_at_trust_level={{this.lockedStatus.locked_at_trust_level}}
+              />
+            </DModal>
+          {{/if}}
         {{/if}}
       {{/if}}
     {{/if}}

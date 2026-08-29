@@ -16,6 +16,7 @@ end
 
 require_relative "lib/discourse_see_tl3_progress/engine"
 require_relative "lib/discourse_see_tl3_progress/stats_progress"
+require_relative "lib/discourse_see_tl3_progress/basic_progress"
 register_svg_icon "triangle-exclamation"
 register_asset "stylesheets/common/progress-bar.scss"
 

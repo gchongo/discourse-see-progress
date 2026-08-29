@@ -1,3 +1,66 @@
+export const TL3_STEP_COUNT = 14;
+
+function requirementMet(requirement) {
+  return requirement.type === "max"
+    ? requirement.value <= requirement.total
+    : requirement.value >= requirement.total;
+}
+
+function requirementRatio(requirement) {
+  const { value, total, type } = requirement;
+
+  if (type === "max") {
+    if (total === 0) {
+      return value === 0 ? 1 : 0;
+    }
+    return Math.max(0, (total - value) / total);
+  }
+
+  if (total === 0) {
+    return 1;
+  }
+  return Math.min(1, value / total);
+}
+
+export function requirementsStepsDone(requirements) {
+  return requirements.filter(requirementMet).length;
+}
+
+export function requirementsPercentageDone(requirements) {
+  if (requirements.length === 0) {
+    return 100;
+  }
+
+  const total = requirements.reduce(
+    (sum, requirement) => sum + requirementRatio(requirement),
+    0
+  );
+
+  return Math.round((total / requirements.length) * 100);
+}
+
+export function requirementsQualify(requirements) {
+  return requirements.every(requirementMet);
+}
+
+// The unmet requirement that needs the smallest amount of progress.
+export function requirementsDiffLess(requirements) {
+  const unmet = requirements
+    .filter((requirement) => !requirementMet(requirement))
+    .map((requirement) => ({
+      key: requirement.key,
+      left: Math.abs(requirement.total - requirement.value),
+    }));
+
+  if (unmet.length === 0) {
+    return null;
+  }
+
+  return unmet.reduce((closest, current) =>
+    current.left < closest.left ? current : closest
+  );
+}
+
 export function stepsDone(stats) {
   let steps = 0;
   const allReqs = [
@@ -78,7 +141,7 @@ export function percentageDone(stats) {
     total += req;
   }
 
-  return Math.round((total / 14) * 100);
+  return Math.round((total / allReqs.length) * 100);
 }
 
 export function doesQualify(stats) {
