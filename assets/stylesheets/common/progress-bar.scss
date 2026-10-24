@@ -13,24 +13,24 @@
   min-width: 0; // critical: lets grid children shrink below their content size
 }
 
-.tl3-progress-bar {
+.see-progress-bar {
   position: relative;
   height: 1em;
   width: 20em;
   border-radius: 1em;
 }
 
-.tl3-progress-bar-meter {
+.see-progress-bar-meter {
   height: 1em;
   border-radius: 1em;
 }
 
-.tl3-progress-gauge-wrapper {
+.see-progress-gauge-wrapper {
   width: fit-content;
   position: relative;
 }
 
-.tl3-progress-gauge-progress-text {
+.see-progress-gauge-progress-text {
   position: absolute;
   inset: 0;
   display: flex;
@@ -79,10 +79,10 @@
   background-color: var(--danger-low);
 }
 
-.tl3-promotion-decision .d-icon-xmark {
+.see-progress-decision .d-icon-xmark {
   color: var(--danger);
 }
 
-.tl3-promotion-decision .d-icon-check {
+.see-progress-decision .d-icon-check {
   color: var(--success);
 }

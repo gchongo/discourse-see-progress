@@ -3,11 +3,11 @@ en:
     admin:
       site_settings:
         categories:
-          see_tl3_progress: "See TL3 Progress"
+          see_progress: "See Progress"
   js:
-    see_tl3_progress:
-      title: "See TL3 Progress"
-      modal_button_text: "Show TL3 progress"
+    see_progress:
+      title: "See Progress"
+      modal_button_text: "Show progress"
       modal_title: 
         one: "TL3 Progress (based on last %{num_days} day)"
         other: "TL3 Progress (based on last %{num_days} days)"

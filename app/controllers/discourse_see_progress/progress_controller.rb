@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module DiscourseSeeTl3Progress
-  class Tl3ProgressController < ApplicationController
+module DiscourseSeeProgress
+  class ProgressController < ApplicationController
     requires_plugin PLUGIN_NAME
     requires_login
 
@@ -17,9 +17,9 @@ module DiscourseSeeTl3Progress
 
     def progress_for(user)
       if user.trust_level >= TrustLevel[2]
-        ::DiscourseSeeTl3Progress::StatsProgress.new(user).stats
+        ::DiscourseSeeProgress::StatsProgress.new(user).stats
       else
-        ::DiscourseSeeTl3Progress::BasicProgress.new(user).stats
+        ::DiscourseSeeProgress::BasicProgress.new(user).stats
       end
     end
   end

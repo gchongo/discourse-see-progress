@@ -41,7 +41,7 @@ export default class Tl3ProgressModal extends Component {
   }
 
   get timePeriodText() {
-    return i18n("see_tl3_progress.time_period", {
+    return i18n("see_progress.time_period", {
       num_days: this.stats.time_period,
     });
   }
@@ -56,8 +56,8 @@ export default class Tl3ProgressModal extends Component {
         {{i18n
           (if
             this.suspended_before.data
-            "see_tl3_progress.suspended"
-            "see_tl3_progress.not_suspended"
+            "see_progress.suspended"
+            "see_progress.not_suspended"
           )
         }}</p>
 
@@ -69,8 +69,8 @@ export default class Tl3ProgressModal extends Component {
         {{i18n
           (if
             this.silenced_before.data
-            "see_tl3_progress.silenced"
-            "see_tl3_progress.not_silenced"
+            "see_progress.silenced"
+            "see_progress.not_silenced"
           )
         }}</p>
 
@@ -78,7 +78,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.days_visited}}
           @total={{this.stats.min_days_visited}}
-          @title="see_tl3_progress.days_visited"
+          @title="see_progress.days_visited"
           @type="min"
           @id="days_visited"
         />
@@ -86,7 +86,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.num_topics_replied_to}}
           @total={{this.stats.min_topics_replied_to}}
-          @title="see_tl3_progress.topics_replied_to"
+          @title="see_progress.topics_replied_to"
           @type="min"
           @id="topics_replied_to"
         />
@@ -94,7 +94,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.topics_viewed}}
           @total={{this.stats.min_topics_viewed}}
-          @title="see_tl3_progress.topics_viewed"
+          @title="see_progress.topics_viewed"
           @type="min"
           @id="topics_viewed"
         />
@@ -102,7 +102,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.topics_viewed_all_time}}
           @total={{this.stats.min_topics_viewed_all_time}}
-          @title="see_tl3_progress.topics_viewed_all_time"
+          @title="see_progress.topics_viewed_all_time"
           @type="min"
           @id="topics_viewed_all_time"
         />
@@ -110,7 +110,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.posts_read}}
           @total={{this.stats.min_posts_read}}
-          @title="see_tl3_progress.posts_read"
+          @title="see_progress.posts_read"
           @type="min"
           @id="posts_read"
         />
@@ -118,7 +118,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.posts_read_all_time}}
           @total={{this.stats.min_posts_read_all_time}}
-          @title="see_tl3_progress.posts_read_all_time"
+          @title="see_progress.posts_read_all_time"
           @type="min"
           @id="posts_read_all_time"
         />
@@ -126,7 +126,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.num_flagged_posts}}
           @total={{this.stats.max_flagged_posts}}
-          @title="see_tl3_progress.flagged_posts"
+          @title="see_progress.flagged_posts"
           @type="max"
           @id="num_flagged_posts"
         />
@@ -134,7 +134,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.num_flagged_by_users}}
           @total={{this.stats.max_flagged_by_users}}
-          @title="see_tl3_progress.flagged_by_users"
+          @title="see_progress.flagged_by_users"
           @type="max"
           @id="num_flagged_by_users"
         />
@@ -142,7 +142,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.num_likes_given}}
           @total={{this.stats.min_likes_given}}
-          @title="see_tl3_progress.likes_given"
+          @title="see_progress.likes_given"
           @type="min"
           @id="num_likes_given"
         />
@@ -150,7 +150,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.num_likes_received}}
           @total={{this.stats.min_likes_received}}
-          @title="see_tl3_progress.likes_received"
+          @title="see_progress.likes_received"
           @type="min"
           @id="num_likes_received"
         />
@@ -158,7 +158,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.num_likes_received_users}}
           @total={{this.stats.min_likes_received_users}}
-          @title="see_tl3_progress.likes_received_users"
+          @title="see_progress.likes_received_users"
           @type="min"
           @id="num_likes_received_users"
         />
@@ -166,7 +166,7 @@ export default class Tl3ProgressModal extends Component {
         <ProgressBar
           @value={{this.stats.num_likes_received_days}}
           @total={{this.stats.min_likes_received_days}}
-          @title="see_tl3_progress.likes_received_days"
+          @title="see_progress.likes_received_days"
           @type="min"
           @id="num_likes_received_days"
         />
@@ -174,22 +174,22 @@ export default class Tl3ProgressModal extends Component {
 
       <hr />
 
-      <p class="inline-wrapper tl3-promotion-decision">
+      <p class="inline-wrapper see-progress-decision">
         {{!-- <div style={{trustHTML this.doesQualifyStyle}}>
           {{icon (if this.doesQualify "check" (if @is_locked "lock" "xmark"))}}
         </div> --}}
         {{#if this.doesQualify}}
           {{#if (and @is_locked (eq @locked_at_trust_level 2))}}
             {{dIcon "lock"}}
-            {{i18n "see_tl3_progress.locked_will_not_be_promoted"}}
+            {{i18n "see_progress.locked_will_not_be_promoted"}}
           {{else}}
             {{#if (eq @user.trust_level 2)}}
               {{dIcon "check"}}
-              {{i18n "see_tl3_progress.qualifies"}}
-              {{i18n "see_tl3_progress.will_be_promoted"}}
+              {{i18n "see_progress.qualifies"}}
+              {{i18n "see_progress.will_be_promoted"}}
             {{else}}
               {{dIcon "check"}}
-              {{i18n "see_tl3_progress.qualifies"}}
+              {{i18n "see_progress.qualifies"}}
             {{/if}}
           {{/if}}
         {{else}}
@@ -197,20 +197,20 @@ export default class Tl3ProgressModal extends Component {
             {{#if (and @is_locked (eq @locked_at_trust_level 3))}}
               {{! User is TL3, and is locked at TL3 }}
               {{dIcon "lock"}}
-              {{i18n "see_tl3_progress.locked_will_not_be_demoted"}}
+              {{i18n "see_progress.locked_will_not_be_demoted"}}
             {{else}}
               {{#if @stats.on_grace_period}}
                 {{dIcon "check"}}
-                {{i18n "see_tl3_progress.on_grace_period"}}
+                {{i18n "see_progress.on_grace_period"}}
               {{else}}
                 {{dIcon "xmark"}}
-                {{i18n "see_tl3_progress.will_be_demoted"}}
+                {{i18n "see_progress.will_be_demoted"}}
               {{/if}}
             {{/if}}
           {{else}}
             {{! User is TL2 }}
             {{dIcon "xmark"}}
-            {{i18n "see_tl3_progress.does_not_qualify"}}
+            {{i18n "see_progress.does_not_qualify"}}
           {{/if}}
         {{/if}}
       </p>

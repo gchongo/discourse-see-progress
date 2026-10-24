@@ -1,5 +1,5 @@
-see_tl3_progress:
-  see_tl3_progress_enabled:
+see_progress:
+  see_progress_enabled:
     default: false
     client: true
   progress_bar_color_light:
@@ -27,7 +27,7 @@ see_tl3_progress:
     type: string
     required: true
     client: true
-  show_verbose_tl3_progress:
+  show_verbose_progress:
     default: false
     type: bool
     client: true

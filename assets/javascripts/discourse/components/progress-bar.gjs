@@ -75,13 +75,13 @@ export default class ProgressBar extends Component {
     <p class="inline-bar-wrapper">
       <div style={{trustHTML this.iconColor}}>{{icon this.iconType}}</div>
       {{i18n @title}}
-      <div class="tl3-progress-bar" style={{trustHTML this.meterBgStyle}}>
+      <div class="see-progress-bar" style={{trustHTML this.meterBgStyle}}>
         <div
-          class="tl3-progress-bar-meter"
+          class="see-progress-bar-meter"
           style={{trustHTML this.meterStyle}}
         ></div>
       </div>
-      <div class="tl3-progress-text">
+      <div class="see-progress-text">
         {{@value}}/{{@total}}
       </div>
     </p>

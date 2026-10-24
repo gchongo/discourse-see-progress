@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DiscourseSeeTl3Progress
+module DiscourseSeeProgress
   class StatsProgress
     def initialize(user)
       @user = user

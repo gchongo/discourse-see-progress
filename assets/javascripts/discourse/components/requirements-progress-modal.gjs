@@ -20,7 +20,7 @@ export default class RequirementsProgressModal extends Component {
         <ProgressBar
           @value={{requirement.value}}
           @total={{requirement.total}}
-          @title={{concat "see_tl3_progress." requirement.key}}
+          @title={{concat "see_progress." requirement.key}}
           @type={{requirement.type}}
           @id={{requirement.key}}
         />
@@ -29,24 +29,24 @@ export default class RequirementsProgressModal extends Component {
 
     <hr />
 
-    <p class="inline-wrapper tl3-promotion-decision">
+    <p class="inline-wrapper see-progress-decision">
       {{#if this.doesQualify}}
         {{! Core blocks promotion whenever a trust level is manually locked }}
         {{#if @is_locked}}
           {{dIcon "lock"}}
-          {{i18n "see_tl3_progress.locked_will_not_be_promoted"}}
+          {{i18n "see_progress.locked_will_not_be_promoted"}}
         {{else}}
           {{dIcon "check"}}
           {{i18n
-            "see_tl3_progress.qualifies_for_level"
+            "see_progress.qualifies_for_level"
             target_level=@targetTrustLevel
           }}
-          {{i18n "see_tl3_progress.will_be_promoted"}}
+          {{i18n "see_progress.will_be_promoted"}}
         {{/if}}
       {{else}}
         {{dIcon "xmark"}}
         {{i18n
-          "see_tl3_progress.does_not_qualify_for_level"
+          "see_progress.does_not_qualify_for_level"
           target_level=@targetTrustLevel
         }}
       {{/if}}

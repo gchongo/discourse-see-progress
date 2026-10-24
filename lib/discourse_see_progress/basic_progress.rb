@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DiscourseSeeTl3Progress
+module DiscourseSeeProgress
   # Progress towards the next trust level for TL0 and TL1 users.
   # The requirements mirror Promotion.tl1_met? and Promotion.tl2_met? in core.
   class BasicProgress

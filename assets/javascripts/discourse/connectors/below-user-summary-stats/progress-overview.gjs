@@ -27,29 +27,24 @@ import {
   TL3_STEP_COUNT,
 } from "../../lib/calculate-stats";
 
-export default class Tl3ProgressButton extends Component {
+export default class ProgressButton extends Component {
   static shouldRender(args, helper) {
     const user = args.user;
 
     if (!helper.currentUser) {
       return false;
     }
+
+    const staff = helper.currentUser.staff;
+
+    // TL4 has nothing to progress towards, so it only shows on a TL4
+    // profile for staff (typically its owner taking a look).
     if (user.trust_level > 3) {
-      return false;
+      return staff && user.isCurrent;
     }
 
-    // Staff can always see it
-    if (helper.currentUser.staff) {
-      return true;
-    }
-
-    // TL3 has nothing left to progress towards, so it is only shown when the
-    // site wants users warned about slipping below the requirements.
-    const meetsTrustSetting =
-      user.trust_level !== 3 ||
-      helper.siteSettings.show_warning_when_tl3_requirements_low;
-
-    return user.isCurrent && meetsTrustSetting && !user.staff;
+    // Anyone can see their own progress; staff can see it on any profile.
+    return user.isCurrent || staff;
   }
 
   @service siteSettings;
@@ -69,9 +64,7 @@ export default class Tl3ProgressButton extends Component {
 
   async getUserStats() {
     try {
-      const data = await ajax(
-        `/u/${this.args.user.username}/tl3-progress.json`
-      );
+      const data = await ajax(`/u/${this.args.user.username}/progress.json`);
       this.stats = data.stats_progress;
       this.stats_loading = false;
     } catch (e) {
@@ -130,7 +123,7 @@ export default class Tl3ProgressButton extends Component {
   }
 
   get progressDoneText() {
-    return i18n("see_tl3_progress.progress_done", {
+    return i18n("see_progress.progress_done", {
       steps_completed: this.stepsDone,
       total_steps: this.totalSteps,
       percentage_done: this.percentageDone,
@@ -138,7 +131,7 @@ export default class Tl3ProgressButton extends Component {
   }
 
   get progressTitle() {
-    return i18n("see_tl3_progress.progress_title", {
+    return i18n("see_progress.progress_title", {
       target_level: this.stats?.target_trust_level,
     });
   }
@@ -149,7 +142,7 @@ export default class Tl3ProgressButton extends Component {
     }
 
     return (
-      this.siteSettings.show_verbose_tl3_progress &&
+      this.siteSettings.show_verbose_progress &&
       (this.args.user.trust_level === 2 || this.args.user.trust_level === 3)
     );
   }
@@ -171,15 +164,15 @@ export default class Tl3ProgressButton extends Component {
 
     return (
       this.isBasic ||
-      (this.siteSettings.show_verbose_tl3_progress &&
+      (this.siteSettings.show_verbose_progress &&
         this.args.user.trust_level === 2)
     );
   }
 
   get closestStatText() {
     const closestStatObj = this.closestStat;
-    return i18n("see_tl3_progress.closest_stat", {
-      stat_name: i18n(`see_tl3_progress.${closestStatObj.key}`),
+    return i18n("see_progress.closest_stat", {
+      stat_name: i18n(`see_progress.${closestStatObj.key}`),
       stat_left_to_next: closestStatObj.left,
     });
   }
@@ -222,11 +215,11 @@ export default class Tl3ProgressButton extends Component {
     if (!closestStatObj) {
       return "";
     }
-    return i18n("see_tl3_progress.closest_stat_to_lose", {
+    return i18n("see_progress.closest_stat_to_lose", {
       stat_name: i18n(
         closestStatObj.key === "days_visited" // days_visited uses its own plugin-defined locale
-          ? "see_tl3_progress.days_visited"
-          : `see_tl3_progress.${closestStatObj.key}`
+          ? "see_progress.days_visited"
+          : `see_progress.${closestStatObj.key}`
       ),
       stat_left: closestStatObj.left,
     });
@@ -237,20 +230,20 @@ export default class Tl3ProgressButton extends Component {
     const num_posts = this.stats.num_posts_in_muted_categories;
 
     const topics_text = i18n(
-      `see_tl3_progress.muted_topics_count.${num_topics === 1 ? "one" : "other"}`,
+      `see_progress.muted_topics_count.${num_topics === 1 ? "one" : "other"}`,
       {
         num_topics: this.stats.num_topics_in_muted_categories,
       }
     );
 
     const posts_text = i18n(
-      `see_tl3_progress.muted_posts_count.${num_posts === 1 ? "one" : "other"}`,
+      `see_progress.muted_posts_count.${num_posts === 1 ? "one" : "other"}`,
       {
         num_posts: this.stats.num_posts_in_muted_categories,
       }
     );
 
-    return i18n("see_tl3_progress.has_muted_topics_posts_warning", {
+    return i18n("see_progress.has_muted_topics_posts_warning", {
       muted_topics_count: topics_text,
       muted_posts_count: posts_text,
     });
@@ -268,8 +261,8 @@ export default class Tl3ProgressButton extends Component {
         <h3>{{i18n
             (if
               (eq this.stats.time_period 1)
-              "see_tl3_progress.modal_title.one"
-              "see_tl3_progress.modal_title.other"
+              "see_progress.modal_title.one"
+              "see_progress.modal_title.other"
             )
             num_days=this.stats.time_period
           }}</h3>
@@ -311,7 +304,7 @@ export default class Tl3ProgressButton extends Component {
           {{dIcon "triangle-exclamation"}}
           {{this.mutedTopicsAndPostsText}}
           <a href={{concat "/u/" @user.username "/preferences/tracking"}}>
-            {{i18n "see_tl3_progress.muted_categories_link_text"}}
+            {{i18n "see_progress.muted_categories_link_text"}}
           </a>
         </div>
       {{/if}}
@@ -329,8 +322,8 @@ export default class Tl3ProgressButton extends Component {
           style="margin-bottom: 1em;"
           @label={{if
             this.isBasic
-            "see_tl3_progress.progress_button_text"
-            "see_tl3_progress.modal_button_text"
+            "see_progress.progress_button_text"
+            "see_progress.modal_button_text"
           }}
           @action={{this.toggleModalState}}
           @icon={{this.siteSettings.modal_button_icon}}
@@ -352,8 +345,8 @@ export default class Tl3ProgressButton extends Component {
               @title={{i18n
                 (if
                   (eq this.stats.time_period 1)
-                  "see_tl3_progress.modal_title.one"
-                  "see_tl3_progress.modal_title.other"
+                  "see_progress.modal_title.one"
+                  "see_progress.modal_title.other"
                 )
                 num_days=this.stats.time_period
               }}
