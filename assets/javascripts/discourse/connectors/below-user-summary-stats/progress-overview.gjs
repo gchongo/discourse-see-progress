@@ -141,9 +141,10 @@ export default class ProgressButton extends Component {
       return true;
     }
 
+    // The detailed TL3 modal serves everyone above basic progress: TL2
+    // chasing it, TL3 keeping it, TL4 (staff) checking it.
     return (
-      this.siteSettings.show_verbose_progress &&
-      (this.args.user.trust_level === 2 || this.args.user.trust_level === 3)
+      this.siteSettings.show_verbose_progress && this.args.user.trust_level >= 2
     );
   }
 
@@ -267,22 +268,20 @@ export default class ProgressButton extends Component {
             num_days=this.stats.time_period
           }}</h3>
       {{/if}}
-      {{#if (or this.isBasic (eq @user.trust_level 2))}}
-        <div class="segmented-bars">
-          {{#each this.barsFilledOrEmpty as |state|}}
-            <div class="segmented-bar" style={{trustHTML this.barBg}}>
-              {{#if state}}
-                <div class="segmented-bar-fill" style={{trustHTML state}}></div>
-              {{else}}
-                <div class="segmented-bar-fill"></div>
-              {{/if}}
-            </div>
-          {{/each}}
-        </div>
-        <p>
-          {{this.progressDoneText}}
-        </p>
-      {{/if}}
+      <div class="segmented-bars">
+        {{#each this.barsFilledOrEmpty as |state|}}
+          <div class="segmented-bar" style={{trustHTML this.barBg}}>
+            {{#if state}}
+              <div class="segmented-bar-fill" style={{trustHTML state}}></div>
+            {{else}}
+              <div class="segmented-bar-fill"></div>
+            {{/if}}
+          </div>
+        {{/each}}
+      </div>
+      <p>
+        {{this.progressDoneText}}
+      </p>
 
       {{#if this.showClosestStat}}
         <div id="closest-stat-text" class="inline-wrapper">{{dIcon "forward"}}
