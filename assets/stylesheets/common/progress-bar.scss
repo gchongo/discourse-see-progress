@@ -6,7 +6,10 @@
 
 .inline-bar-wrapper {
   display: grid;
-  grid-template-columns: 1.4em minmax(7em, 12em) 1fr 3.5em;
+  // The label may shrink below its text (it wraps) and the value column is
+  // content-sized, so the 1fr bar column always gets the space that is left:
+  // on narrow screens the bar simply shortens instead of overflowing.
+  grid-template-columns: 1.4em minmax(0, 11em) 1fr auto;
   align-items: center;
   gap: 0.7em;
   width: 100%;
@@ -16,7 +19,8 @@
 .see-progress-bar {
   position: relative;
   height: 1em;
-  width: 20em;
+  width: 100%;
+  min-width: 2em; // keep a visible stub on the narrowest screens
   border-radius: 1em;
 }
 
@@ -44,10 +48,14 @@
   display: flex;
   gap: 0.2em;
   height: 1em;
+  max-width: 100%;
 }
 
 .segmented-bar {
-  width: 5em;
+  // Equal flexible segments: 4 or 14 of them share the row width instead of
+  // each claiming a fixed 5em and overflowing narrow screens.
+  flex: 1 1 0;
+  min-width: 0.4em;
   height: 0.5em;
   border-radius: 1em;
 }
